@@ -1,17 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Todo-liste</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- <style>
+        div {outline: 1px solid black}
+    </style> -->
+  </head>
+  <body>
     <header>
-        <div class="container mt-7">
-            <h1 class="mb-6 text-center border">Todo-liste</h1>
-            <p class="text-primary border text-center">Was du heute kannst besorgen, verschieb auf-Morgen-Liste!</p>
-        </div>
+      <div class="container mt-7">
+        <h1 class="mb-6 text-center border">Todo-liste</h1>
+        <p class="text-primary border text-center">
+          Was du heute kannst besorgen, verschieb auf-Morgen-Liste!
+        </p>
+      </div>
     </header>
-</body>
+    <main>
+      <div class="container border mt-5">
+        <div class="row justify-content-center">
+          <div class="col-md-8">
+            <!-- Eingabebereich -->
+            <div class="card mb-4">
+              <div class="card-body">
+                <div class="input-group">
+                  <input
+                    type="text"
+                    id="todoInput"
+                    class="form-control rounded"
+                    placeholder="Neues ToDo hinzufügen"
+                  />
+                  <button class="btn btn-primary ms-2 rounded" onclick="console.log('ToDo hinzugefügt')">Hinzufügen</button>
+                </div>
+              </div>
+            </div>
+            <!-- ToDo-Liste -->
+             <div class="card">
+                <div class="card-header">
+                    <h5>Meine ToDos</h5>
+                </div>
+                <div class="card-body">
+                    <ul id="todoList" class="list-group list-group-flush">
+                        <!-- Hier werden die ToDos dynamisch per JS eingeladen -->
+                        <li class="list-group-item">Das ist ein ToDo</li>
+                        <li class="list-group-item">Das ist ein ToDo</li>
+                        <li class="list-group-item">Das ist ein ToDo</li>
+                        <li class="list-group-item">Das ist ein ToDo</li>
+                        <li class="list-group-item">Das ist ein ToDo</li>
+                    </ul>
+                </div>
+             </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
 </html>
