@@ -51,17 +51,25 @@ function addTodo() {
     // Erster Schritt: Eingabe aus dem Input Field rausholen (mit überprüfung ob eine Eingabe existiert)
     const inputField = document.getElementById("todoInput");
     const inputFieldValue = inputField.value;
+    //
     // Überprüfung ob Eingabe Leer ist
     if (inputFieldValue === "") {
         // alert("Eingabefeld ist Leer, Bitte gib ein To-Do ein");
         return;
     }
+    // Konstruiere das To-Do als Objekt - bsp: {"title": "waschen", "completed": true, "date": "02.07.2025"},
+    const newTodoObject = {
+        title: inputFieldValue,
+        completed: false,
+        date: "Platzhalter",
+    }
     // Zweiter Schritt: Eingabe in todosList hinzufügen
-    todosList.push(inputFieldValue); //wert aus dem Eingabefeld wird dem Array todosList hinzugefügt
+    todosList.push(newTodoObject); //wert aus dem Eingabefeld wird dem Array todosList hinzugefügt
     // Dritter Schritt: Eingabe-Feld nach dem hinzufügen leeren
     inputField.value = "" //Input Field wird geleert
     renderToDos();
-    console.log(`Das neue Todo ist: ${inputFieldValue}`)
+
+    console.log(`Das neue Todo ist: `, newTodoObject)
     console.log(`Alle To-Dos: `, todosList)
     // alert("To-Do erfolgreich hinzugefügt: " + inputFieldValue);
 }
