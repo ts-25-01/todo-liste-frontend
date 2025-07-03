@@ -1,8 +1,8 @@
 console.log("JavaScript Datei geladen")
 
 let todosList = [
-    {"title": "waschen", "completed": true, "date": "02.07.2025"},
-    {"title": "putzen", "completed": false, "date": "03.07.2025"}
+    { "title": "waschen", "completed": true, "date": "02.07.2025" },
+    { "title": "putzen", "completed": false, "date": "03.07.2025" }
 ];
 
 function changeStatus(index) {
@@ -33,8 +33,8 @@ function renderToDos() {
         <input type="checkbox" class="form-check-input border-dark" onchange="changeStatus(${i})" ${isChecked}>
         <span class="${strikethrough}">${currentToDo.title}</span>
         <div>
-        <button class="btn btn-lg mx-auto btn-success">✏️</button>
-        <button class="btn btn-lg mx-auto btn-danger">🗑️</button>
+        <button class="btn btn-lg mx-auto btn-success" onclick="editToDo(${i})">✏️</button>
+        <button class="btn btn-lg mx-auto btn-danger" onclick="deleteToDo(${i})">🗑️</button>
         </div>
         </li>
 
@@ -74,3 +74,29 @@ function addTodo() {
     // alert("To-Do erfolgreich hinzugefügt: " + inputFieldValue);
 }
 renderToDos();
+
+function deleteToDo(index) {
+    // Warnung ausgeben ob wirklich gelöscht werden soll
+    const confirmDelete = confirm("Möchten Sie das ToDo wirklich löschen?");
+    // ToDo-Object aus Array löschen
+    if (confirmDelete) {
+        // Ab dieser Stelle(Index) löschen wir ein Element 
+        todosList.splice(index, 1)
+        renderToDos()
+    } else {
+        alert("Prozess wurde abgebrochen")
+    }
+}
+
+function editToDo(index) {
+    const currentText = todosList[index].title;
+    const newTitle = prompt("Bearbeite den Titel", currentText);
+    if (newTitle === null) {
+        console.log("Kein Titel eingegeben")
+        return;
+    }
+    const trimmedTitle = newTitle.trim();
+    todosList[index].title = trimmedTitle;
+    todosList[index].completed = false;
+    renderToDos()
+}
