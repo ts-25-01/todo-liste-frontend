@@ -2,6 +2,7 @@ console.log("JavaScript Datei geladen")
 
 let todosList = ["waschen"];
 
+
 function renderToDos() {
     // wir holen uns die todoList aus dem html doc
     const todoListElement = document.getElementById("todoList");
@@ -13,7 +14,15 @@ function renderToDos() {
         const currentToDo = todosList[i]
         // erzeuge jeweils eine Zeile für das ToDo Element als li-Element in html
         const toDoHtml = `
-        <li class="list-group-item">${currentToDo}</li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+        <input type="checkbox" class="form-check-input border-dark" onchange="changeStatus()"> 
+        <span> ${currentToDo}</span>
+        <div>
+        <button class="btn btn-lg mx-auto btn-success">✏️</button>
+        <button class="btn btn-lg mx-auto btn-danger">🗑️</button>
+        </div>
+        </li>
+    
         `
             
         // füge erzeugte Zeile der ToDoList hinzu
