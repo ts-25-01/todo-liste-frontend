@@ -1,7 +1,9 @@
 console.log("JavaScript Datei geladen")
 
-let todosList = ["waschen"];
-
+let todosList = [
+    {"title": "waschen", "completed": true, "date": "02.07.2025"},
+    {"title": "putzen", "completed": false, "date": "03.07.2025"}
+];
 
 function renderToDos() {
     // wir holen uns die todoList aus dem html doc
@@ -13,22 +15,26 @@ function renderToDos() {
     for (let i = 0; i < todosList.length; i++) {
         const currentToDo = todosList[i]
         // erzeuge jeweils eine Zeile für das ToDo Element als li-Element in html
+        // Hier wird überprüft ob completed     ? wenn wahr : wenn falsch
+        const isChecked = currentToDo.completed ? 'checked' : '';
+        const strikethrough = currentToDo.completed ? 'text-decoration-line-through' : '';
+        // console.log(currentToDo.title + ' bekommt den Wert ' + isChecked)
         const toDoHtml = `
         <li class="list-group-item d-flex justify-content-between align-items-center">
-        <input type="checkbox" class="form-check-input border-dark" onchange="changeStatus()"> 
-        <span> ${currentToDo}</span>
+        <input type="checkbox" class="form-check-input border-dark" onchange="changeStatus()" ${isChecked}>
+        <span class="${strikethrough}">${currentToDo.title}</span>
         <div>
         <button class="btn btn-lg mx-auto btn-success">✏️</button>
         <button class="btn btn-lg mx-auto btn-danger">🗑️</button>
         </div>
         </li>
-    
+
         `
-            
+
         // füge erzeugte Zeile der ToDoList hinzu
         todoListElement.innerHTML += toDoHtml;
     }
-    
+
 
 }
 
@@ -38,7 +44,7 @@ function addTodo() {
     const inputFieldValue = inputField.value;
     // Überprüfung ob Eingabe Leer ist
     if (inputFieldValue === "") {
-        alert("Eingabefeld ist Leer, Bitte gib ein To-Do ein");
+        // alert("Eingabefeld ist Leer, Bitte gib ein To-Do ein");
         return;
     }
     // Zweiter Schritt: Eingabe in todosList hinzufügen
@@ -48,6 +54,6 @@ function addTodo() {
     renderToDos();
     console.log(`Das neue Todo ist: ${inputFieldValue}`)
     console.log(`Alle To-Dos: `, todosList)
-    alert("To-Do erfolgreich hinzugefügt: " + inputFieldValue);
+    // alert("To-Do erfolgreich hinzugefügt: " + inputFieldValue);
 }
 renderToDos();
