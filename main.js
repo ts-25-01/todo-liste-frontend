@@ -5,6 +5,15 @@ let todosList = [
     {"title": "putzen", "completed": false, "date": "03.07.2025"}
 ];
 
+function changeStatus(index) {
+    // Status switchen von completed im ToDos Objekt
+    todosList[index].completed = !todosList[index].completed;
+    // Aufruf der Render-ToDos für aktuelle Ansicht
+    renderToDos();
+
+
+}
+
 function renderToDos() {
     // wir holen uns die todoList aus dem html doc
     const todoListElement = document.getElementById("todoList");
@@ -21,7 +30,7 @@ function renderToDos() {
         // console.log(currentToDo.title + ' bekommt den Wert ' + isChecked)
         const toDoHtml = `
         <li class="list-group-item d-flex justify-content-between align-items-center">
-        <input type="checkbox" class="form-check-input border-dark" onchange="changeStatus()" ${isChecked}>
+        <input type="checkbox" class="form-check-input border-dark" onchange="changeStatus(${i})" ${isChecked}>
         <span class="${strikethrough}">${currentToDo.title}</span>
         <div>
         <button class="btn btn-lg mx-auto btn-success">✏️</button>
