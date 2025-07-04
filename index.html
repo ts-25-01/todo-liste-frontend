@@ -58,6 +58,31 @@
           </div>
         </div>
       </div>
+
+      <!-- Modal zum Löschen Bestätigen -->
+      <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <!-- Header vom Modal -->
+            <div class="modal-header">
+              <h5 class="modal-title" id="deleteModalTitle">Löschen bestätigen?</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <!-- Modal Body -->
+            <div class="modal-body">
+              Möchtest du dieses Todo wirklich löschen?
+            </div>
+            <!-- Modal Footer -->
+             <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+              <button type="button" class="btn btn-danger" id="confirmDeleteButton">Löschen</button>
+             </div>
+
+          </div>
+
+        </div>
+        
+      </div>
     </main>
     <footer>
 

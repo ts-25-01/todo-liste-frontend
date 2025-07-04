@@ -10,8 +10,6 @@ function changeStatus(index) {
     todosList[index].completed = !todosList[index].completed;
     // Aufruf der Render-ToDos für aktuelle Ansicht
     renderToDos();
-
-
 }
 
 function renderToDos() {
@@ -20,12 +18,19 @@ function renderToDos() {
     // console.log(todoListElement);
     // wir leeren die ToDoList
     todoListElement.innerHTML = "";
+    // console.log("Wir rendern die Todos neu")
     // mit einer for schleife über der todos iterieren
     for (let i = 0; i < todosList.length; i++) {
         const currentToDo = todosList[i]
         // erzeuge jeweils eine Zeile für das ToDo Element als li-Element in html
         // Hier wird überprüft ob completed     ? wenn wahr : wenn falsch
         const isChecked = currentToDo.completed ? 'checked' : '';
+        // let isChecked;
+        // if (currentToDo.completed == true){
+        //     isChecked = 'checked';
+        // } else {
+        //     isChecked = '';
+        // }
         const strikethrough = currentToDo.completed ? 'text-decoration-line-through' : '';
         // console.log(currentToDo.title + ' bekommt den Wert ' + isChecked)
         const toDoHtml = `
@@ -75,17 +80,23 @@ function addTodo() {
 }
 renderToDos();
 
+// Globale Variable für den deleteIndex
+let deleteIndex = null;
+
 function deleteToDo(index) {
+    deleteIndex = index;
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
     // Warnung ausgeben ob wirklich gelöscht werden soll
-    const confirmDelete = confirm("Möchten Sie das ToDo wirklich löschen?");
-    // ToDo-Object aus Array löschen
-    if (confirmDelete) {
-        // Ab dieser Stelle(Index) löschen wir ein Element 
-        todosList.splice(index, 1)
-        renderToDos()
-    } else {
-        alert("Prozess wurde abgebrochen")
-    }
+    // const confirmDelete = confirm("Möchten Sie das ToDo wirklich löschen?");
+    // // ToDo-Object aus Array löschen
+    // if (confirmDelete) {
+    //     // Ab dieser Stelle(Index) löschen wir ein Element 
+    //     todosList.splice(index, 1)
+    //     renderToDos()
+    // } else {
+    //     alert("Prozess wurde abgebrochen")
+    // }
 }
 
 function editToDo(index) {
@@ -100,3 +111,19 @@ function editToDo(index) {
     todosList[index].completed = false;
     renderToDos()
 }
+
+// Wir wollen einen Event-Listener definieren
+// dieser wird getriggert, sobald der Löschen-Button im Modal gedrückt wird
+// Löschen-Button hat die ID: confirmDeleteButton
+// Sobald diese Aktion passiert, wird eine Funktion ausgeführt
+// Diese Funktion beinhaltet dann das Löschen des Todos aus der Liste
+document.getElementById('confirmDeleteButton').addEventListener('click', function () {
+    if (deleteIndex !== null) {
+        todosList.splice(deleteIndex, 1);
+        deleteIndex = null;
+        renderToDos();
+
+        const modalElement = document.getElementById('deleteModal');
+        bootstrap.Modal.getInstance(modalElement).hide();
+    }
+})
