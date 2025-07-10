@@ -211,7 +211,7 @@ async function saveEdit(index) {
 
   try {
     const response = await fetch(
-      `${APIURL}/${todo.id}`,
+      `${APIURL}/${todosList[index].id}`,
       {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
