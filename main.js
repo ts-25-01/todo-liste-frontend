@@ -129,6 +129,12 @@ renderTodos();
 let deleteIndex = null;
 function deleteToDoModal(index) {
   deleteIndex = index;
+  // Text des zu löschenden Todos holen und im Modal anzeigen
+  const todoText = todosList[index]?.title || "";
+  const modalText = document.getElementById("deleteModalText");
+  if (modalText) {
+    modalText.textContent = `Möchtest du dieses Todo wirklich löschen?\n\n\"${todoText}\"`;
+  }
   const modal = new bootstrap.Modal(document.getElementById("deleteModal"));
   modal.show();
 }

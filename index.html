@@ -31,9 +31,9 @@
   </head>
   <body class="bg-dark text-light">
     <header>
-      <div class="container mt-7">
-        <h1 class="mb-6 text-center border">Todo-Liste</h1>
-        <p class="text-primary border text-center">
+      <div class="container d-flex flex-column justify-content-center align-items-center" style="min-height: 40vh; margin-top: 0; padding-top: 0;">
+        <h1 class="mb-6 text-center text-danger">Todo-Liste</h1>
+        <p class="text-warning text-center">
           Was du heute kannst besorgen, verschieb auf Morgen-Liste!
         </p>
       </div>
@@ -51,12 +51,12 @@
       <div id="errorMessage" class="alert alert-danger mx-3 fade" role="alert">
         <strong>Fehler!</strong> <span id="errorText"></span>
       </div>
-      <div class="container border mt-5 p-3">
+      <div class="container p-3" style="margin-top: -15vh; padding-top: 0;">
         <div class="row justify-content-center">
           <div class="col-md-8">
             <!-- Eingabebereich -->
-            <div class="card mb-4">
-              <div class="card-body">
+            <div class="card mb-4" style="background-color: #f8f5e4;">
+              <div class="card-body" style="background-color: #f8f5e4;">
                 <div class="input-group">
                   <input
                     type="text"
@@ -78,11 +78,13 @@
               </div>
             </div>
             <!-- ToDo-Liste -->
-            <div class="card">
-              <div class="card-header">
-                <h5>Meine ToDos</h5>
+            <div class="card" style="background-color: #f8f5e4;">
+              <div class="card-header" style="background-color: #f8f5e4;">
+                <div style="background-color: #4be36a; color: #111; border-radius: 0.375rem; padding: 0.5rem 1rem;">
+                  <h5 style="color: #111; margin: 0;">Meine ToDos</h5>
+                </div>
               </div>
-              <div class="card-body">
+              <div class="card-body" style="background-color: #f8f5e4;">
                 <ul id="todoList" class="list-group list-group-flush">
                   <!-- Hier werden die ToDos dynamisch per JS eingeladen -->
                   <li
@@ -155,7 +157,7 @@
             </div>
             <!-- Modal Body -->
             <div class="modal-body">
-              Möchtest du dieses Todo wirklich löschen?
+              <span id="deleteModalText" style="color: #dc3545;">Möchtest du dieses Todo wirklich löschen?</span>
             </div>
             <!-- Modal Footer -->
             <div class="modal-footer">
