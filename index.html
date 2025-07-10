@@ -12,6 +12,21 @@
       .form-check-input:checked + span {
         text-decoration: line-through;
       }
+      .list-group-item.editing {
+        input.form-check-input,
+        span,
+        button:is([id^="editButton-"], [id^="deleteButton-"])
+        {
+          display: none;
+        }
+      }
+      .list-group-item:not(.editing) {
+        input.form-control,
+        button:is([id^="saveButton-"], [id^="cancelButton-"])
+        {
+          display: none;
+        }
+      }
     </style>
   </head>
   <body>
@@ -26,16 +41,16 @@
     <main>
       <!-- <button class="btn-primary" id="loadingSpinnerSwitchButton">Switch des Loading Spinners</button> -->
       <!-- Erstelle Loading-Anzeige -->
-       <div id="loadingSpinner" class="text-center mt-4" style="display: none">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Lädt...</span>
-          </div>
-          <p class="mt-2">Lade Todos...</p>
-       </div>
-       <!-- Erstelle Fehlermeldung-Anzeige -->
-        <div id="errorMessage" class="alert alert-danger mx-3 fade" role="alert">
-          <strong>Fehler!</strong> <span id="errorText"></span>
+      <div id="loadingSpinner" class="text-center mt-4" style="display: none">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Lädt...</span>
         </div>
+        <p class="mt-2">Lade Todos...</p>
+      </div>
+      <!-- Erstelle Fehlermeldung-Anzeige -->
+      <div id="errorMessage" class="alert alert-danger mx-3 fade" role="alert">
+        <strong>Fehler!</strong> <span id="errorText"></span>
+      </div>
       <div class="container border mt-5 p-3">
         <div class="row justify-content-center">
           <div class="col-md-8">
@@ -70,11 +85,47 @@
               <div class="card-body">
                 <ul id="todoList" class="list-group list-group-flush">
                   <!-- Hier werden die ToDos dynamisch per JS eingeladen -->
-                  <!-- <li class="list-group-item">Das ist ein ToDo</li>
-                        <li class="list-group-item">Das ist ein ToDo</li>
-                        <li class="list-group-item">Das ist ein ToDo</li>
-                        <li class="list-group-item">Das ist ein ToDo</li>
-                        <li class="list-group-item">Das ist ein ToDo</li> -->
+                  <li
+                    id="todoItem-0"
+                    class="list-group-item d-flex justify-content-between align-items-center fade-in">
+                    <input
+                      type="checkbox"
+                      class="form-check-input border-dark"
+                      onchange="changeStatus(0)"
+                      ${isChecked} />
+                    <span id="todoText-0">${currentToDo.title}</span>
+                    <!-- d-none ist Bootstrap-Klasse für style auf display: none; -->
+                    <input
+                      id="editInput-0"
+                      class="form-control d-none mx-5"
+                      value="${currentToDo.title}" />
+                    <div class="d-flex">
+                      <button
+                        class="btn btn-lg mx-auto btn-success d-none"
+                        onclick="saveEdit(0)"
+                        id="saveButton-0">
+                        💾
+                      </button>
+                      <button
+                        class="btn btn-lg mx-auto btn-danger"
+                        onclick="cancelEdit(0)"
+                        id="cancelButton-${i}">
+                        ❌
+                      </button>
+                      <button
+                        class="btn btn-lg mx-auto btn-warning"
+                        onclick="openEditMode(0)"
+                        id="editButton-0">
+                        ✏️
+                      </button>
+                      <button
+                        class="btn btn-lg mx-auto btn-danger"
+                        onclick="deleteToDoModal(0)"
+                        id="deleteButton-0">
+                        🗑️
+                      </button>
+                    </div>
+                  </li>
                 </ul>
               </div>
             </div>
