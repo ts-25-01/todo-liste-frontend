@@ -12,17 +12,17 @@ function hideLoading() {
     document.getElementById('loadingSpinner').style.display = 'none';
 }
 
-document.getElementById('loadingSpinnerSwitchButton').addEventListener('click', () => {
-    if (document.getElementById('loadingSpinner').style.display === 'block') {
-        hideLoading();
-        let isLoading = false;
-        setButtonLoading(isLoading);
-    } else {
-        showLoading();
-        let isLoading = true;
-        setButtonLoading(isLoading);
-    }
-})
+// document.getElementById('loadingSpinnerSwitchButton').addEventListener('click', () => {
+//     if (document.getElementById('loadingSpinner').style.display === 'block') {
+//         hideLoading();
+//         let isLoading = false;
+//         setButtonLoading(isLoading);
+//     } else {
+//         showLoading();
+//         let isLoading = true;
+//         setButtonLoading(isLoading);
+//     }
+// })
 
 function setButtonLoading(isLoading) {
     const button = document.getElementById('addButton');
@@ -111,7 +111,7 @@ async function changeStatus(index) {
                 id: todo.id
             })
         })
-        if (!response.ok){
+        if (!response.ok) {
             throw new Error(`HTTP Error: ${response.status}`)
         }
         console.log("Status geändert");
@@ -133,7 +133,6 @@ function renderToDos() {
     // console.log("Wir rendern die Todos neu")
     // mit einer for schleife über der todos iterieren
     for (let i = 0; i < todosList.length; i++) {
-        setTimeout(() => {
         const currentToDo = todosList[i]
         // erzeuge jeweils eine Zeile für das ToDo Element als li-Element in html
         // Hier wird überprüft ob completed     ? wenn wahr : wenn falsch
@@ -149,10 +148,13 @@ function renderToDos() {
         const toDoHtml = `
         <li class="list-group-item d-flex justify-content-between align-items-center fade-in">
         <input type="checkbox" class="form-check-input border-dark" onchange="changeStatus(${i})" ${isChecked}>
-        <span class="${strikethrough}">${currentToDo.title}</span>
+        <span id="todoText-${i}" class="${strikethrough}">${currentToDo.title}</span>
+        <!-- d-none ist Bootstrap-Klasse für style auf display: none; -->
+        <input id="editInput-${i}" class="form-control d-none mx-5" value="${currentToDo.title}">
         <div>
-        <button class="btn btn-lg mx-auto btn-success" onclick="editToDo(${i})">✏️</button>
-        <button class="btn btn-lg mx-auto btn-danger" onclick="deleteToDoModal(${i})">🗑️</button>
+        <button class="btn btn-lg mx-auto btn-success d-none" onclick="saveEdit(${i})" id="saveButton-${i}">💾</button>
+        <button class="btn btn-lg mx-auto btn-warning" onclick="openEditMode(${i})" id="editButton-${i}">✏️</button>
+        <button class="btn btn-lg mx-auto btn-danger" onclick="deleteToDoModal(${i})" id="deleteButton-${i}">🗑️</button>
         </div>
         </li>
 
@@ -160,7 +162,6 @@ function renderToDos() {
 
         // füge erzeugte Zeile der ToDoList hinzu
         todoListElement.innerHTML += toDoHtml;
-}, i*800);
     }
 
 
@@ -234,18 +235,71 @@ function deleteToDoModal(index) {
     // }
 }
 
-function editToDo(index) {
-    const currentText = todosList[index].title;
-    const newTitle = prompt("Bearbeite den Titel", currentText);
-    if (newTitle === null) {
+async function saveEdit(index) {
+    const inputElement = document.getElementById(`editInput-${index}`);
+    const newTitle = inputElement.value.trim();
+    if (newTitle === "") {
         console.log("Kein Titel eingegeben")
+        showError("Titel darf nicht leer sein")
         return;
     }
-    const trimmedTitle = newTitle.trim();
-    todosList[index].title = trimmedTitle;
-    todosList[index].completed = false;
-    renderToDos()
+    const todo = todosList[index];
+    const updatedTodo = {
+        id: todo.id,
+        title: newTitle,
+        completed: todo.completed,
+        date: todo.date
+    }
+
+    try {
+        const response = await fetch(`https://686e0a5fc9090c49538803f9.mockapi.io/api/todos/${todo.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedTodo)
+        })
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
+        const updatedTodoFromAPI = await response.json();
+        todosList[index] = updatedTodoFromAPI;
+        renderToDos();
+    } catch (error) {
+        console.error("Fehler beim Speichern", error);
+        showError("Änderungen konnten nicht gespeichert werden.");
 }
+
+
+
+
+
+
+
+const currentText = todosList[index].title;
+// const newTitle = prompt("Bearbeite den Titel", currentText);
+if (newTitle === null) {
+    console.log("Kein Titel eingegeben")
+    return;
+}
+const trimmedTitle = newTitle.trim();
+todosList[index].title = trimmedTitle;
+todosList[index].completed = false;
+renderToDos()
+}
+
+function openEditMode(index) {
+    console.log("Öffne Editier-Modus");
+    document.getElementById(`editInput-${index}`).classList.remove('d-none');
+    document.getElementById(`saveButton-${index}`).classList.remove('d-none');
+    document.getElementById(`todoText-${index}`).classList.add('d-none');
+    document.getElementById(`editButton-${index}`).classList.add('d-none');
+    document.getElementById(`deleteButton-${index}`).classList.add('d-none');
+    // console.log(document.getElementById(`deleteButton-${index}`));
+}
+
 
 // Wir wollen einen Event-Listener definieren
 // dieser wird getriggert, sobald der Löschen-Button im Modal gedrückt wird
@@ -258,10 +312,10 @@ document.getElementById('confirmDeleteButton').addEventListener('click', async (
         try {
             console.log("lösche Todo", todoToDelete);
             // Todo aus der Liste in der API löschen
-            const response = await fetch(`https://86e0a5fc9090c49538803f9.mockapi.io/api/todos/${todoToDelete.id}`, {
+            const response = await fetch(`https://686e0a5fc9090c49538803f9.mockapi.io/api/todos/${todoToDelete.id}`, {
                 method: 'DELETE'
             })
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`HTTP Error: ${response.status}`);
             }
             // Lösche das parallel in unserem "künstlichen Cache"
