@@ -43,13 +43,10 @@ function setButtonLoading(isLoading) {
 // Funktion, um die Fehlermeldung bei Bedarf 5 Sekunden anzuzeigen
 function showError(message) {
     document.getElementById('errorText').textContent = message;
-    document.getElementById('errorMessage').style.display = 'block';
+    // document.getElementById('errorMessage').style.display = 'block';
     document.getElementById('errorMessage').classList.add('show');
     setTimeout(() => {
         document.getElementById('errorMessage').classList.remove('show');
-        setTimeout(() => {
-            document.getElementById('errorMessage').style.display = 'none';
-        }, 300)
     }, 3000);
 }
 
@@ -136,6 +133,7 @@ function renderToDos() {
     // console.log("Wir rendern die Todos neu")
     // mit einer for schleife über der todos iterieren
     for (let i = 0; i < todosList.length; i++) {
+        setTimeout(() => {
         const currentToDo = todosList[i]
         // erzeuge jeweils eine Zeile für das ToDo Element als li-Element in html
         // Hier wird überprüft ob completed     ? wenn wahr : wenn falsch
@@ -149,12 +147,12 @@ function renderToDos() {
         const strikethrough = currentToDo.completed ? 'text-decoration-line-through' : '';
         // console.log(currentToDo.title + ' bekommt den Wert ' + isChecked)
         const toDoHtml = `
-        <li class="list-group-item d-flex justify-content-between align-items-center">
+        <li class="list-group-item d-flex justify-content-between align-items-center fade-in">
         <input type="checkbox" class="form-check-input border-dark" onchange="changeStatus(${i})" ${isChecked}>
         <span class="${strikethrough}">${currentToDo.title}</span>
         <div>
         <button class="btn btn-lg mx-auto btn-success" onclick="editToDo(${i})">✏️</button>
-        <button class="btn btn-lg mx-auto btn-danger" onclick="deleteToDo(${i})">🗑️</button>
+        <button class="btn btn-lg mx-auto btn-danger" onclick="deleteToDoModal(${i})">🗑️</button>
         </div>
         </li>
 
@@ -162,6 +160,7 @@ function renderToDos() {
 
         // füge erzeugte Zeile der ToDoList hinzu
         todoListElement.innerHTML += toDoHtml;
+}, i*800);
     }
 
 
@@ -199,9 +198,9 @@ async function addTodo() {
 
         // Zweiter Schritt: Eingabe in todosList hinzufügen
         todosList.push(newTodoFromAPI); //wert aus dem Eingabefeld wird dem Array todosList hinzugefügt
+        renderToDos();
         // loadTodosFromAPI();
         // Dritter Schritt: Eingabe-Feld nach dem hinzufügen leeren
-        renderToDos();
     } catch (error) {
         console.error("Fehler beim Laden", error);
         showError("Todo konnte nicht erstellt werden");
@@ -219,7 +218,7 @@ renderToDos();
 // Globale Variable für den deleteIndex
 let deleteIndex = null;
 
-function deleteToDo(index) {
+function deleteToDoModal(index) {
     deleteIndex = index;
     const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
     modal.show();
@@ -253,14 +252,42 @@ function editToDo(index) {
 // Löschen-Button hat die ID: confirmDeleteButton
 // Sobald diese Aktion passiert, wird eine Funktion ausgeführt
 // Diese Funktion beinhaltet dann das Löschen des Todos aus der Liste
-document.getElementById('confirmDeleteButton').addEventListener('click', () => {
+document.getElementById('confirmDeleteButton').addEventListener('click', async () => {
     if (deleteIndex !== null) {
-        todosList.splice(deleteIndex, 1);
-        deleteIndex = null;
-        renderToDos();
+        const todoToDelete = todosList[deleteIndex];
+        try {
+            console.log("lösche Todo", todoToDelete);
+            // Todo aus der Liste in der API löschen
+            const response = await fetch(`https://86e0a5fc9090c49538803f9.mockapi.io/api/todos/${todoToDelete.id}`, {
+                method: 'DELETE'
+            })
+            if (!response.ok){
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+            // Lösche das parallel in unserem "künstlichen Cache"
+            todosList.splice(deleteIndex, 1);
+            deleteIndex = null;
+            renderToDos();
+            // Bei Bedarf kann im Hintergrund das Nachladen aller Todos von der API stattfinden, falls parallel andere User Veränderungen durchgeführt haben
+            // loadTodosFromAPI();
+            // Modal wieder schließen
+            const modalElement = document.getElementById('deleteModal');
+            bootstrap.Modal.getInstance(modalElement).hide();
+            console.log("Todo gelöscht!");
+        } catch (err) {
+            console.error(`Fehler beim Löschen: ${err.name}: ${err.message}`);
+            showError("Todo konnte nicht gelöscht werden!");
+            deleteIndex = null;
+            const modalElement = document.getElementById('deleteModal');
+            bootstrap.Modal.getInstance(modalElement).hide();
+        }
 
-        const modalElement = document.getElementById('deleteModal');
-        bootstrap.Modal.getInstance(modalElement).hide();
+
+
+
+
+
+
     }
 })
 
