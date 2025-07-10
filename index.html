@@ -24,24 +24,18 @@
       </div>
     </header>
     <main>
-      <button class="btn-primary" id="loadingSpinnerSwitchButton">
-        Switch des Loading Spinners
-      </button>
+      <!-- <button class="btn-primary" id="loadingSpinnerSwitchButton">Switch des Loading Spinners</button> -->
       <!-- Erstelle Loading-Anzeige -->
-      <div id="loadingSpinner" class="text-center mt-4" style="display: none">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Lädt...</span>
+       <div id="loadingSpinner" class="text-center mt-4" style="display: none">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Lädt...</span>
+          </div>
+          <p class="mt-2">Lade Todos...</p>
+       </div>
+       <!-- Erstelle Fehlermeldung-Anzeige -->
+        <div id="errorMessage" class="alert alert-danger mx-3 fade" role="alert">
+          <strong>Fehler!</strong> <span id="errorText"></span>
         </div>
-        <p class="mt-2">Lade Todos...</p>
-      </div>
-      <!-- Erstelle Fehlermeldung-Anzeige -->
-      <div
-        id="errorMessage"
-        class="alert alert-danger mx-3 fade"
-        style="display: none"
-        role="alert">
-        <strong>Fehler!</strong> <span id="errorText"></span>
-      </div>
       <div class="container border mt-5 p-3">
         <div class="row justify-content-center">
           <div class="col-md-8">
