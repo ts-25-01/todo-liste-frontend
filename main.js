@@ -1,4 +1,4 @@
-console.log("JavaScript Datei geladen")
+console.log("JavaScript Datei geladen");
 
 // Veränderung, dass wir ein leeres Array initialiseren, das wir gleich mit einer Funktion füllen, wo wir die API nach Daten fragen
 let todosList = [];
@@ -12,17 +12,19 @@ function hideLoading() {
     document.getElementById('loadingSpinner').style.display = 'none';
 }
 
-document.getElementById('loadingSpinnerSwitchButton').addEventListener('click', () => {
-    if (document.getElementById('loadingSpinner').style.display === 'block') {
-        hideLoading();
-        let isLoading = false;
-        setButtonLoading(isLoading);
-    } else {
-        showLoading();
-        let isLoading = true;
-        setButtonLoading(isLoading);
-    }
-})
+document
+    .getElementById("loadingSpinnerSwitchButton")
+    .addEventListener("click", () => {
+        if (document.getElementById("loadingSpinner").style.display === "block") {
+            hideLoading();
+            let isLoading = false;
+            setButtonLoading(isLoading);
+        } else {
+            showLoading();
+            let isLoading = true;
+            setButtonLoading(isLoading);
+        }
+    });
 
 function setButtonLoading(isLoading) {
     const button = document.getElementById('addButton');
@@ -43,13 +45,13 @@ function setButtonLoading(isLoading) {
 // Funktion, um die Fehlermeldung bei Bedarf 5 Sekunden anzuzeigen
 function showError(message) {
     document.getElementById('errorText').textContent = message;
-    document.getElementById('errorMessage').style.display = 'block';
+    // document.getElementById('errorMessage').style.display = 'block';
     document.getElementById('errorMessage').classList.add('show');
     setTimeout(() => {
         document.getElementById('errorMessage').classList.remove('show');
-        setTimeout(() => {
-            document.getElementById('errorMessage').style.display = 'none';
-        }, 300)
+        // setTimeout(() => {
+        //     document.getElementById('errorMessage').style.display = 'none';
+        // }, 300)
     }, 3000);
 }
 
@@ -74,20 +76,15 @@ async function loadTodosFromAPI() {
         showError("Todos konnten nicht geladen werden. Offline-Modus aktiviert");
         // Gehe auf Fallback zurück
         todosList = [
-            { "title": "waschen", "completed": true, "date": "02.07.2025" },
-            { "title": "putzen", "completed": false, "date": "03.07.2025" }
+            { title: "waschen", "completed": true, "date": "02.07.2025" },
+            { "title": "putzen", completed: false, date: "03.07.2025" },
         ];
     } finally {
         renderToDos();
         hideLoading();
     }
-
-
-
-
 }
 loadTodosFromAPI();
-
 
 async function changeStatus(index) {
     // Status switchen von completed im ToDos Objekt
@@ -95,7 +92,7 @@ async function changeStatus(index) {
     const todo = todosList[index];
     const newStatus = !todo.completed;
     todo.completed = newStatus;
-    renderToDos();
+    //   renderToDos();
     try {
         console.log("ändere Status für das Todo", todo);
         console.log("todo id ", todo.id);
@@ -107,10 +104,10 @@ async function changeStatus(index) {
         const response = await fetch(`https://686e0a5fc9090c49538803f9.mockapi.io/api/todos/${todo.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', },
-            body: JSON.stringify({
-                title: todo.title,
-                completed: newStatus,
-                date: todo.date,
+                body: JSON.stringify({
+                    title: todo.title,
+                    completed: newStatus,
+                    date: todo.date,
                 id: todo.id
             })
         })
@@ -121,7 +118,6 @@ async function changeStatus(index) {
         // renderToDos();
     } catch (error) {
         console.error("Fehler beim Status ändern", error);
-
     }
     // Aufruf der Render-ToDos für aktuelle Ansicht
     // renderToDos();
@@ -137,34 +133,32 @@ function renderToDos() {
     // mit einer for schleife über der todos iterieren
     for (let i = 0; i < todosList.length; i++) {
         const currentToDo = todosList[i]
-        // erzeuge jeweils eine Zeile für das ToDo Element als li-Element in html
-        // Hier wird überprüft ob completed     ? wenn wahr : wenn falsch
+            // erzeuge jeweils eine Zeile für das ToDo Element als li-Element in html
+            // Hier wird überprüft ob completed     ? wenn wahr : wenn falsch
         const isChecked = currentToDo.completed ? 'checked' : '';
-        // let isChecked;
-        // if (currentToDo.completed == true){
-        //     isChecked = 'checked';
-        // } else {
-        //     isChecked = '';
-        // }
-        const strikethrough = currentToDo.completed ? 'text-decoration-line-through' : '';
-        // console.log(currentToDo.title + ' bekommt den Wert ' + isChecked)
-        const toDoHtml = `
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-        <input type="checkbox" class="form-check-input border-dark" onchange="changeStatus(${i})" ${isChecked}>
-        <span class="${strikethrough}">${currentToDo.title}</span>
-        <div>
-        <button class="btn btn-lg mx-auto btn-success" onclick="editToDo(${i})">✏️</button>
-        <button class="btn btn-lg mx-auto btn-danger" onclick="deleteToDo(${i})">🗑️</button>
-        </div>
-        </li>
+            // let isChecked;
+            // if (currentToDo.completed == true){
+            //     isChecked = 'checked';
+            // } else {
+            //     isChecked = '';
+            // }
+        // const strikethrough = currentToDo.completed ? 'text-decoration-line-through' : '';
+            // console.log(currentToDo.title + ' bekommt den Wert ' + isChecked)
+            const toDoHtml = `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <input type="checkbox" class="form-check-input border-dark" onchange="changeStatus(${i})" ${isChecked}>
+                    <span>${currentToDo.title}</span>
+                    <div>
+                    <button class="btn btn-lg mx-auto btn-success" onclick="editToDo(${i})">✏️</button>
+                    <button class="btn btn-lg mx-auto btn-danger" onclick="deleteToDo(${i})">🗑️</button>
+                    </div>
+                    </li>
 
-        `
+        `;
 
-        // füge erzeugte Zeile der ToDoList hinzu
-        todoListElement.innerHTML += toDoHtml;
+            // füge erzeugte Zeile der ToDoList hinzu
+            todoListElement.innerHTML += toDoHtml;
     }
-
-
 }
 
 async function addTodo() {
@@ -184,18 +178,18 @@ async function addTodo() {
         // über eine POST-Request
         const response = await fetch('https://686e0a5fc9090c49538803f9.mockapi.io/api/todos', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                title: inputFieldValue,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    title: inputFieldValue,
                 completed: false
             })
         });
         const newTodoFromAPI = await response.json();
         console.log("Todo hinzugefügt", newTodoFromAPI);
         // Eingabefeld wieder geleert
-        inputField.value = "" //Input Field wird geleert
+        inputField.value = ""; //Input Field wird geleert
 
         // Zweiter Schritt: Eingabe in todosList hinzufügen
         todosList.push(newTodoFromAPI); //wert aus dem Eingabefeld wird dem Array todosList hinzugefügt
@@ -208,7 +202,6 @@ async function addTodo() {
     } finally {
         setButtonLoading(false);
     }
-
 
     // console.log(`Das neue Todo ist: `, newTodoObject)
     // console.log(`Alle To-Dos: `, todosList)
@@ -227,7 +220,7 @@ function deleteToDo(index) {
     // const confirmDelete = confirm("Möchten Sie das ToDo wirklich löschen?");
     // // ToDo-Object aus Array löschen
     // if (confirmDelete) {
-    //     // Ab dieser Stelle(Index) löschen wir ein Element 
+    //     // Ab dieser Stelle(Index) löschen wir ein Element
     //     todosList.splice(index, 1)
     //     renderToDos()
     // } else {
@@ -239,13 +232,13 @@ function editToDo(index) {
     const currentText = todosList[index].title;
     const newTitle = prompt("Bearbeite den Titel", currentText);
     if (newTitle === null) {
-        console.log("Kein Titel eingegeben")
+        console.log("Kein Titel eingegeben");
         return;
     }
     const trimmedTitle = newTitle.trim();
     todosList[index].title = trimmedTitle;
     todosList[index].completed = false;
-    renderToDos()
+    renderToDos();
 }
 
 // Wir wollen einen Event-Listener definieren
@@ -262,7 +255,7 @@ document.getElementById('confirmDeleteButton').addEventListener('click', () => {
         const modalElement = document.getElementById('deleteModal');
         bootstrap.Modal.getInstance(modalElement).hide();
     }
-})
+});
 
 // function buttonClicked() {
 //     if (deleteIndex !== null) {
