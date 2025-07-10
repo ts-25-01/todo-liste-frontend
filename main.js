@@ -142,7 +142,7 @@ function renderToDos() {
         const toDoHtml = `
         <li class="list-group-item d-flex justify-content-between align-items-center fade-in">
         <input type="checkbox" class="form-check-input border-dark" onchange="changeStatus(${i})" ${isChecked}>
-        <span id="todoText-${i}" class="${strikethrough}">${currentToDo.title}</span>
+        <span id="todoText-${i}">${currentToDo.title}</span>
         <!-- d-none ist Bootstrap-Klasse für style auf display: none; -->
         <input id="editInput-${i}" class="form-control d-none mx-5" value="${currentToDo.title}">
         <div>
