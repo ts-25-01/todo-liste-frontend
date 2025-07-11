@@ -1,185 +1,224 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html lang="de">
+
   <head>
+
     <meta charset="UTF-8" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Todo-Liste</title>
+
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+
       rel="stylesheet" />
+
     <style>
+
       /* div {outline: 1px solid black} */
+
       .form-check-input:checked + span {
+
         text-decoration: line-through;
+
       }
+
+
       .list-group-item.editing {
+
+
         input.form-check-input,
+
+
         span,
+
+
         button:is([id^="editButton-"], [id^="deleteButton-"])
+
+
         {
+
+
           display: none;
+
+
         }
+
+
       }
+
+
       .list-group-item:not(.editing) {
+
+
         input.form-control,
+
+
         button:is([id^="saveButton-"], [id^="cancelButton-"])
+
+
         {
+
+
           display: none;
+
+
         }
+
+
       }
+
+      .fade-in { animation: fadeIn 0.5s; }
+
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+      #loadingSpinner { display: none; }
+
+      #addButtonSpinner { display: none; }
+
+      #errorMessage { transition: opacity 0.3s; opacity: 0; }
+
+      #errorMessage.show { opacity: 1; }
+
     </style>
+
   </head>
-  <body class="bg-dark text-light">
-    <header>
-      <div class="container d-flex flex-column justify-content-center align-items-center" style="min-height: 40vh; margin-top: 0; padding-top: 0;">
-        <h1 class="mb-6 text-center text-danger">Todo-Liste</h1>
-        <p class="text-warning text-center">
-          Was du heute kannst besorgen, verschieb auf Morgen-Liste!
-        </p>
-      </div>
-    </header>
-    <main>
-      <!-- <button class="btn-primary" id="loadingSpinnerSwitchButton">Switch des Loading Spinners</button> -->
-      <!-- Erstelle Loading-Anzeige -->
-      <div id="loadingSpinner" class="text-center mt-4" style="display: none">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Lädt...</span>
-        </div>
-        <p class="mt-2">Lade Todos...</p>
-      </div>
-      <!-- Erstelle Fehlermeldung-Anzeige -->
-      <div id="errorMessage" class="alert alert-danger mx-3 fade" role="alert">
-        <strong>Fehler!</strong> <span id="errorText"></span>
-      </div>
-      <div class="container p-3" style="margin-top: -15vh; padding-top: 0;">
-        <div class="row justify-content-center">
-          <div class="col-md-8">
-            <!-- Eingabebereich -->
-            <div class="card mb-4" style="background-color: #f8f5e4;">
-              <div class="card-body" style="background-color: #f8f5e4;">
-                <div class="input-group">
-                  <input
-                    type="text"
-                    id="todoInput"
-                    class="form-control rounded"
-                    placeholder="Neues ToDo hinzufügen" />
-                  <!-- Füge Lade-Status für Button hinzu -->
-                  <button
-                    id="addButton"
-                    class="btn btn-primary ms-2 rounded"
-                    onclick="addTodo()">
-                    <span id="addButtonText">Hinzufügen</span>
-                    <span
-                      id="addButtonSpinner"
-                      class="spinner-border spinner-border-sm ms-2"
-                      style="display: none"></span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <!-- ToDo-Liste -->
-            <div class="card" style="background-color: #f8f5e4;">
-              <div class="card-header" style="background-color: #f8f5e4;">
-                <div style="background-color: #4be36a; color: #111; border-radius: 0.375rem; padding: 0.5rem 1rem;">
-                  <h5 style="color: #111; margin: 0;">Meine ToDos</h5>
-                </div>
-              </div>
-              <div class="card-body" style="background-color: #f8f5e4;">
-                <ul id="todoList" class="list-group list-group-flush">
-                  <!-- Hier werden die ToDos dynamisch per JS eingeladen -->
-                  <li
-                    id="todoItem-0"
-                    class="list-group-item d-flex justify-content-between align-items-center fade-in">
-                    <input
-                      type="checkbox"
-                      class="form-check-input border-dark"
-                      onchange="changeStatus(0)"
-                      ${isChecked} />
-                    <span id="todoText-0">${currentToDo.title}</span>
-                    <!-- d-none ist Bootstrap-Klasse für style auf display: none; -->
-                    <input
-                      id="editInput-0"
-                      class="form-control d-none mx-5"
-                      value="${currentToDo.title}" />
-                    <div class="d-flex">
-                      <button
-                        class="btn btn-lg mx-auto btn-success d-none"
-                        onclick="saveEdit(0)"
-                        id="saveButton-0">
-                        💾
-                      </button>
-                      <button
-                        class="btn btn-lg mx-auto btn-danger"
-                        onclick="cancelEdit(0)"
-                        id="cancelButton-${i}">
-                        ❌
-                      </button>
-                      <button
-                        class="btn btn-lg mx-auto btn-warning"
-                        onclick="openEditMode(0)"
-                        id="editButton-0">
-                        ✏️
-                      </button>
-                      <button
-                        class="btn btn-lg mx-auto btn-danger"
-                        onclick="deleteToDoModal(0)"
-                        id="deleteButton-0">
-                        🗑️
-                      </button>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+
+  <body class="bg-light">
+
+    <div class="container py-5">
+
+      <h1 class="mb-4">Meine ToDo Liste</h1>
+
+      <div class="mb-3 d-flex">
+
+        <input id="todoInput" class="form-control me-2" type="text" placeholder="Neues ToDo...">
+
+        <button id="addButton" class="btn btn-primary d-flex align-items-center" onclick="addTodo()">
+
+          <span id="addButtonText">Hinzufügen</span>
+
+          <span id="addButtonSpinner" class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+
+        </button>
+
       </div>
 
-      <!-- Modal zum Löschen Bestätigen -->
-      <div
-        class="modal fade"
-        id="deleteModal"
-        tabindex="-1"
-        aria-labelledby="deleteModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <!-- Header vom Modal -->
-            <div class="modal-header">
-              <h5 class="modal-title" id="deleteModalTitle">
-                Löschen bestätigen?
-              </h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Schließen"></button>
-            </div>
-            <!-- Modal Body -->
-            <div class="modal-body">
-              <span id="deleteModalText" style="color: #dc3545;">Möchtest du dieses Todo wirklich löschen?</span>
-            </div>
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal">
-                Abbrechen
-              </button>
-              <button
-                type="button"
-                class="btn btn-danger"
-                id="confirmDeleteButton">
-                Löschen
-              </button>
-            </div>
-          </div>
-        </div>
+      <div id="errorMessage" class="alert alert-danger py-2 px-3 mb-3" role="alert">
+
+        <span id="errorText"></span>
+
       </div>
-    </main>
-    <footer></footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+      <div id="loadingSpinner" class="text-center my-3">
+
+        <div class="spinner-border text-primary" role="status">
+
+          <span class="visually-hidden">Lädt...</span>
+
+        </div>
+
+      </div>
+
+      <ul id="todoList" class="list-group">
+
+        <!-- Die ToDos werden dynamisch per JavaScript eingefügt -->
+
+      </ul>
+
+    </div>
+
+
+
+    <!-- Modal zum Löschen Bestätigen -->
+
+    <div
+
+      class="modal fade"
+
+      id="deleteModal"
+
+      tabindex="-1"
+
+      aria-labelledby="deleteModalTitle"
+
+      aria-hidden="true">
+
+      <div class="modal-dialog">
+
+        <div class="modal-content">
+
+          <div class="modal-header">
+
+            <h5 class="modal-title" id="deleteModalTitle">
+
+              Löschen bestätigen?
+
+            </h5>
+
+            <button
+
+              type="button"
+
+              class="btn-close"
+
+              data-bs-dismiss="modal"
+
+              aria-label="Schließen"></button>
+
+          </div>
+
+          <div class="modal-body">
+
+            Möchtest du dieses Todo wirklich löschen?
+
+          </div>
+
+          <div class="modal-footer">
+
+            <button
+
+              type="button"
+
+              class="btn btn-secondary"
+
+              data-bs-dismiss="modal">
+
+              Abbrechen
+
+            </button>
+
+            <button
+
+              type="button"
+
+              class="btn btn-danger"
+
+              id="confirmDeleteButton">
+
+              Löschen
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Bootstrap JS (CDN) -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Main JS -->
+
     <script src="main.js"></script>
+
   </body>
+
 </html>
