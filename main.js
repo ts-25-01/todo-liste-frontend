@@ -1,3 +1,4 @@
+'use strict'
 console.log("JavaScript Datei geladen");
 
 // Veränderung, dass wir ein leeres Array initialiseren, das wir gleich mit einer Funktion füllen, wo wir die API nach Daten fragen
@@ -5,25 +6,31 @@ let todosList = [];
 const APIURL = "https://686e0a5fc9090c49538803f9.mockapi.io/api/todos";
 
 // Hilfsfunktionen, um die Loading Spinner jeweils anzuzeigen bzw. wieder zu verstecken
-function showLoading() {
-  document.getElementById("loadingSpinner").style.display = "block";
+function showElement(element) {
+  if (typeof element === "string") {
+    element = document.getElementById(element);
+  }
+  element.classList.remove("d-none");
 }
 
-function hideLoading() {
-  document.getElementById("loadingSpinner").style.display = "none";
+function hideElement(element) {
+  if (typeof element === "string") {
+    element = document.getElementById(element);
+  }
+  element.classList.add("d-none");
 }
 
-// document.getElementById('loadingSpinnerSwitchButton').addEventListener('click', () => {
-//     if (document.getElementById('loadingSpinner').style.display === 'block') {
-//         hideLoading();
-//         let isLoading = false;
-//         setButtonLoading(isLoading);
-//     } else {
-//         showLoading();
-//         let isLoading = true;
-//         setButtonLoading(isLoading);
-//     }
-// })
+let isLoading = false;
+document.getElementById('loadingSpinnerSwitchButton').addEventListener('click', () => {
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner.classList.contains("d-none")) {
+        isLoading = false;
+        showElement("loadingSpinner");
+    } else {
+        isLoading = true;
+        hideElement("loadingSpinner");
+    }
+})
 
 function setButtonLoading(isLoading) {
   const button = document.getElementById("addButton");
@@ -33,11 +40,11 @@ function setButtonLoading(isLoading) {
   if (isLoading) {
     button.disabled = true;
     text.textContent = "Wird hinzugefügt";
-    spinner.style.display = "inline-block";
+    showElement(spinner);
   } else {
     button.disabled = false;
     text.textContent = "Hinzufügen";
-    spinner.style.display = "none";
+    hideElement(spinner);
   }
 }
 
@@ -56,11 +63,14 @@ async function loadTodosFromAPI() {
   // Logge dir aus, dass wir jetzt die Todos von der API laden
   console.log("Lade Todos von der API...");
   // Rufe Funktion showLoading auf, damit wir den Ladezustand angezeigt bekommen
-  showLoading();
+  showElement("loadingSpinner");
   try {
     // fetche dir die Daten von der API
     const response = await fetch(APIURL);
     // Transformiere das Response-Objekt in der Konstante response in ein json-Format
+    if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status}`);
+    }
     const todosFromAPI = await response.json();
     // Schreibe diese todosFromAPI im json-Format in unsere Todos-Liste
     todosList = todosFromAPI;
@@ -77,38 +87,38 @@ async function loadTodosFromAPI() {
     ];
   } finally {
     renderToDos();
-    hideLoading();
+    hideElement("loadingSpinner");
   }
 }
 loadTodosFromAPI();
 
-async function changeStatus(index) {
+async function changeStatus(checkbox, index) {
   // Status switchen von completed im ToDos Objekt
-  // todosList[index].completed = !todosList[index].completed;
+  // // todosList[index].completed = !todosList[index].completed;
   const todo = todosList[index];
   const newStatus = !todo.completed;
-  todo.completed = newStatus;
-  //   renderToDos();
+  // // todo.completed = newStatus;
+  // //  renderToDos();
   try {
     console.log("ändere Status für das Todo", todo);
     console.log("todo id ", todo.id);
     console.log("neuer Status", newStatus);
     // Fetch um Status des Todos zu aktualisieren
-    const response = await fetch(
-      `${APIURL}/${todo.id}`,
-      {
-        method: "PUT",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({completed: newStatus}),
-      }
-    );
+    const response = await fetch(`${APIURL}/${todo.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completed: newStatus }),
+    });
     if (!response.ok) {
       throw new Error(`HTTP Error: ${response.status}`);
     }
+    todo.completed = newStatus;
     console.log("Status geändert");
     // renderToDos();
   } catch (error) {
     console.error("Fehler beim Status ändern", error);
+  } finally {
+
   }
   // Aufruf der Render-ToDos für aktuelle Ansicht
   // renderToDos();
@@ -128,15 +138,43 @@ function renderToDos() {
     // Hier wird überprüft ob completed     ? wenn wahr : wenn falsch
     const isChecked = currentToDo.completed ? "checked" : "";
     const toDoHtml = `
-        <li id="todoItem-${i}" class="list-group-item d-flex justify-content-between align-items-center fade-in">
-          <input type="checkbox" class="form-check-input border-dark" onchange="changeStatus(${i})" ${isChecked}>
+        <li id="todoItem-${i}"
+        class="list-group-item d-flex justify-content-between align-items-center fade-in">
+          <input
+            type="checkbox"
+            class="form-check-input border-dark"
+            onchange="changeStatus(${i})"
+            ${isChecked}/>
           <span id="todoText-${i}">${currentToDo.title}</span>
-          <input id="editInput-${i}" class="form-control mx-5" value="${currentToDo.title}">
-          <div class="d-flex">
-            <button class="btn btn-lg mx-auto btn-success" onclick="saveEdit(${i})" id="saveButton-${i}">💾</button>
-            <button class="btn btn-lg mx-auto btn-outline-danger" onclick="cancelEdit(${i})" id="cancelButton-${i}">❌</button>
-            <button class="btn btn-lg mx-auto btn-warning" onclick="openEditMode(${i})" id="editButton-${i}">✏️</button>
-            <button class="btn btn-lg mx-auto btn-danger" onclick="deleteToDoModal(${i})" id="deleteButton-${i}">🗑️</button>
+          <input
+            id="editInput-${i}"
+            class="form-control mx-5"
+            value="${currentToDo.title}" />
+          <div class="d-flex flex-column flex-md-row">
+            <button
+              class="btn btn-lg mx-auto btn-success"
+              onclick="saveEdit(${i})"
+              id="saveButton-${i}">
+              💾
+            </button>
+            <button
+              class="btn btn-lg mx-auto btn-outline-danger"
+              onclick="cancelEdit(${i})"
+              id="cancelButton-${i}">
+              ❌
+            </button>
+            <button
+              class="btn btn-lg mx-auto btn-warning"
+              onclick="openEditMode(${i})"
+              id="editButton-${i}">
+              ✏️
+            </button>
+            <button
+              class="btn btn-lg mx-auto btn-danger"
+              onclick="deleteToDoModal(${i})"
+              id="deleteButton-${i}">
+              🗑️
+            </button>
           </div>
         </li>
         `;
@@ -246,13 +284,33 @@ async function saveEdit(index) {
 function openEditMode(index) {
   console.log(`Öffne Editier-Modus für Eintrag ${index}`);
   document.getElementById(`todoItem-${index}`).classList.add('editing');
+  document.getElementById(`editInput-${index}`).addEventListener(
+    "keydown", inputFieldKeypress);
 }
 
 function cancelEdit(index) {
   console.log(`Beende Editier-Modus für Eintrag ${index}`);
   document.getElementById(`todoItem-${index}`).classList.remove('editing');
-  document.getElementById(`editInput-${index}`).value = todosList[index].title;
+  const input = document.getElementById(`editInput-${index}`);
+  input.value = todosList[index].title;
+  input.removeEventListener("keydown", inputFieldKeypress);
 }
+
+function inputFieldKeypress(event) {
+  const index = parseInt((this.id.split("-"))[1]);
+  switch (event.key) {
+    case "Enter":
+      saveEdit(index);
+      break;
+    case "Escape":
+      cancelEdit(index);
+      break;
+    case "Undo":
+      this.value = todosList[index].title;
+      break;
+  }
+}
+
 
 // Wir wollen einen Event-Listener definieren
 // dieser wird getriggert, sobald der Löschen-Button im Modal gedrückt wird
@@ -290,7 +348,12 @@ document
         deleteIndex = null;
       }
     }
-  });
+  }
+);
+
+document.getElementById("todoInput").addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {addTodo();}
+});
 
 // function buttonClicked() {
 //     if (deleteIndex !== null) {

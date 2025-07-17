@@ -9,29 +9,37 @@
       rel="stylesheet" />
     <style>
       /* div {outline: 1px solid black} */
+      /* <!--
+      ! zum Durchstreichen */
       .form-check-input:checked + span {
         text-decoration: line-through;
       }
+      /*
+      ! zum Bearbeiten */
       .list-group-item.editing {
         input.form-check-input,
         span,
-        button:is([id^="editButton-"], [id^="deleteButton-"])
-        {
+        button:is(
+          [id^="editButton-"],
+          [id^="deleteButton-"]
+        ) {
           display: none;
         }
       }
       .list-group-item:not(.editing) {
         input.form-control,
-        button:is([id^="saveButton-"], [id^="cancelButton-"])
-        {
+        button:is(
+          [id^="saveButton-"],
+          [id^="cancelButton-"]
+        ) {
           display: none;
         }
       }
     </style>
   </head>
   <body>
-    <header>
-      <div class="container mt-7">
+    <header class="pt-2">
+      <div class="container">
         <h1 class="mb-6 text-center border">Todo-Liste</h1>
         <p class="text-primary border text-center">
           Was du heute kannst besorgen, verschieb auf Morgen-Liste!
@@ -39,13 +47,21 @@
       </div>
     </header>
     <main>
-      <!-- <button class="btn-primary" id="loadingSpinnerSwitchButton">Switch des Loading Spinners</button> -->
+      <button
+        class="btn-primary"
+        id="loadingSpinnerSwitchButton">
+        <span>
+          Switch des Loading Spinners
+        </span>
+      </button>
       <!-- Erstelle Loading-Anzeige -->
-      <div id="loadingSpinner" class="text-center mt-4" style="display: none">
+      <div id="loadingSpinner" class="text-center mt-4 d-none">
         <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Lädt...</span>
+          <span>Lädt...</span>
+          <span
+            class="spinner-border spinner-border-sm ms-2">
+          </span>
         </div>
-        <p class="mt-2">Lade Todos...</p>
       </div>
       <!-- Erstelle Fehlermeldung-Anzeige -->
       <div id="errorMessage" class="alert alert-danger mx-3 fade" role="alert">
@@ -53,7 +69,7 @@
       </div>
       <div class="container border mt-5 p-3">
         <div class="row justify-content-center">
-          <div class="col-md-8">
+          <div class="">
             <!-- Eingabebereich -->
             <div class="card mb-4">
               <div class="card-body">
@@ -63,21 +79,21 @@
                     id="todoInput"
                     class="form-control rounded"
                     placeholder="Neues ToDo hinzufügen" />
-                  <!-- Füge Lade-Status für Button hinzu -->
                   <button
                     id="addButton"
                     class="btn btn-primary ms-2 rounded"
                     onclick="addTodo()">
                     <span id="addButtonText">Hinzufügen</span>
+                    <!-- Füge Lade-Status für Button hinzu -->
                     <span
                       id="addButtonSpinner"
-                      class="spinner-border spinner-border-sm ms-2"
-                      style="display: none"></span>
+                      class="spinner-border ms-2 d-none">
+                    </span>
                   </button>
                 </div>
               </div>
             </div>
-            <!-- ToDo-Liste -->
+            <!--* ToDo-Liste -->
             <div class="card">
               <div class="card-header">
                 <h5>Meine ToDos</h5>
@@ -85,6 +101,7 @@
               <div class="card-body">
                 <ul id="todoList" class="list-group list-group-flush">
                   <!-- Hier werden die ToDos dynamisch per JS eingeladen -->
+                  <!--* Beispiel Todo-Element -->
                   <li
                     id="todoItem-0"
                     class="list-group-item d-flex justify-content-between align-items-center fade-in">
@@ -92,14 +109,14 @@
                       type="checkbox"
                       class="form-check-input border-dark"
                       onchange="changeStatus(0)"
-                      ${isChecked} />
+                      checked />
                     <span id="todoText-0">${currentToDo.title}</span>
                     <!-- d-none ist Bootstrap-Klasse für style auf display: none; -->
                     <input
                       id="editInput-0"
                       class="form-control d-none mx-5"
                       value="${currentToDo.title}" />
-                    <div class="d-flex">
+                    <div class="d-flex flex-column flex-md-row">
                       <button
                         class="btn btn-lg mx-auto btn-success d-none"
                         onclick="saveEdit(0)"
@@ -126,14 +143,14 @@
                       </button>
                     </div>
                   </li>
+                  <!-- Beispiel Todo Ende -->
                 </ul>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Modal zum Löschen Bestätigen -->
+      <!--* Modal zum Löschen Bestätigen -->
       <div
         class="modal fade"
         id="deleteModal"
@@ -175,6 +192,7 @@
           </div>
         </div>
       </div>
+      <!-- Modal Ende -->
     </main>
     <footer></footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
