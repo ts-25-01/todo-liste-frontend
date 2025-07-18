@@ -1,50 +1,33 @@
-'use strict'
+// 'use strict'
 console.log("JavaScript Datei geladen");
 
 // Veränderung, dass wir ein leeres Array initialiseren, das wir gleich mit einer Funktion füllen, wo wir die API nach Daten fragen
 let todosList = [];
 const APIURL = "https://686e0a5fc9090c49538803f9.mockapi.io/api/todos";
 
+// ! Hilfsfunktionen
 // Hilfsfunktionen, um die Loading Spinner jeweils anzuzeigen bzw. wieder zu verstecken
-function showElement(element) {
+function toggleShowElement(element) {
   if (typeof element === "string") {
     element = document.getElementById(element);
   }
-  element.classList.remove("d-none");
+  element.classList.toggle("d-none");
 }
 
-function hideElement(element) {
-  if (typeof element === "string") {
-    element = document.getElementById(element);
-  }
-  element.classList.add("d-none");
-}
-
-let isLoading = false;
-document.getElementById('loadingSpinnerSwitchButton').addEventListener('click', () => {
-    const spinner = document.getElementById('loadingSpinner');
-    if (spinner.classList.contains("d-none")) {
-        isLoading = false;
-        showElement("loadingSpinner");
-    } else {
-        isLoading = true;
-        hideElement("loadingSpinner");
-    }
-})
+document.getElementById('loadingSpinnerSwitchButton')
+  .addEventListener('click', () => {toggleShowElement('loadingSpinner')});
 
 function setButtonLoading(isLoading) {
   const button = document.getElementById("addButton");
   const text = document.getElementById("addButtonText");
-  const spinner = document.getElementById("addButtonSpinner");
+  toggleShowElement("addButtonSpinner");
 
   if (isLoading) {
     button.disabled = true;
     text.textContent = "Wird hinzugefügt";
-    showElement(spinner);
   } else {
     button.disabled = false;
     text.textContent = "Hinzufügen";
-    hideElement(spinner);
   }
 }
 
@@ -58,12 +41,13 @@ function showError(message) {
   }, 3000);
 }
 
+// ! Todos Laden
 // Funktion, um sich die Todos von der API zu laden
 async function loadTodosFromAPI() {
   // Logge dir aus, dass wir jetzt die Todos von der API laden
   console.log("Lade Todos von der API...");
   // Rufe Funktion showLoading auf, damit wir den Ladezustand angezeigt bekommen
-  showElement("loadingSpinner");
+  toggleShowElement("loadingSpinner");
   try {
     // fetche dir die Daten von der API
     const response = await fetch(APIURL);
@@ -87,42 +71,10 @@ async function loadTodosFromAPI() {
     ];
   } finally {
     renderToDos();
-    hideElement("loadingSpinner");
+    toggleShowElement("loadingSpinner");
   }
 }
 loadTodosFromAPI();
-
-async function changeStatus(checkbox, index) {
-  // Status switchen von completed im ToDos Objekt
-  // // todosList[index].completed = !todosList[index].completed;
-  const todo = todosList[index];
-  const newStatus = !todo.completed;
-  // // todo.completed = newStatus;
-  // //  renderToDos();
-  try {
-    console.log("ändere Status für das Todo", todo);
-    console.log("todo id ", todo.id);
-    console.log("neuer Status", newStatus);
-    // Fetch um Status des Todos zu aktualisieren
-    const response = await fetch(`${APIURL}/${todo.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completed: newStatus }),
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP Error: ${response.status}`);
-    }
-    todo.completed = newStatus;
-    console.log("Status geändert");
-    // renderToDos();
-  } catch (error) {
-    console.error("Fehler beim Status ändern", error);
-  } finally {
-
-  }
-  // Aufruf der Render-ToDos für aktuelle Ansicht
-  // renderToDos();
-}
 
 function renderToDos() {
   // wir holen uns die todoList aus dem html doc
@@ -133,23 +85,23 @@ function renderToDos() {
   // console.log("Wir rendern die Todos neu")
   // mit einer for schleife über der todos iterieren
   for (let i = 0; i < todosList.length; i++) {
-    const currentToDo = todosList[i];
+    const {title, completed} = todosList[i];
     // erzeuge jeweils eine Zeile für das ToDo Element als li-Element in html
     // Hier wird überprüft ob completed     ? wenn wahr : wenn falsch
-    const isChecked = currentToDo.completed ? "checked" : "";
+    const checked = completed ? "checked" : "";
     const toDoHtml = `
         <li id="todoItem-${i}"
         class="list-group-item d-flex justify-content-between align-items-center fade-in">
           <input
             type="checkbox"
             class="form-check-input border-dark"
-            onchange="changeStatus(${i})"
-            ${isChecked}/>
-          <span id="todoText-${i}">${currentToDo.title}</span>
+            onchange="changeStatus(this, ${i})"
+            ${checked}/>
+          <span id="todoText-${i}">${title}</span>
           <input
             id="editInput-${i}"
             class="form-control mx-5"
-            value="${currentToDo.title}" />
+            value="${title}" />
           <div class="d-flex flex-column flex-md-row">
             <button
               class="btn btn-lg mx-auto btn-success"
@@ -182,7 +134,9 @@ function renderToDos() {
     todoListElement.innerHTML += toDoHtml;
   }
 }
+renderToDos();
 
+// ! Neues Todo
 async function addTodo() {
   // Erster Schritt: Eingabe aus dem Input Field rausholen (mit überprüfung ob eine Eingabe existiert)
   const inputField = document.getElementById("todoInput");
@@ -203,10 +157,7 @@ async function addTodo() {
       {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          title: inputFieldValue,
-          completed: false,
-        }),
+        body: JSON.stringify({title: inputFieldValue}),
       }
     );
     const newTodoFromAPI = await response.json();
@@ -226,8 +177,14 @@ async function addTodo() {
     setButtonLoading(false);
   }
 }
-renderToDos();
 
+document.getElementById("todoInput").addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    addTodo();
+  }
+});
+
+// ! Todos löschen
 // Globale Variable für den deleteIndex
 let deleteIndex = null;
 
@@ -238,87 +195,12 @@ function deleteToDoModal(index) {
   // Warnung ausgeben ob wirklich gelöscht werden soll
 }
 
-async function saveEdit(index) {
-  const inputElement = document.getElementById(`editInput-${index}`);
-  const newTitle = inputElement.value.trim();
-  if (newTitle === "") {
-    console.log("Kein Titel eingegeben");
-    showError("Titel darf nicht leer sein");
-    return;
-  }
-
-  try {
-    const response = await fetch(
-      `${APIURL}/${todosList[index].id}`,
-      {
-        method: "PUT",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({title: newTitle}),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`HTTP Error: ${response.status}`);
-    }
-
-    const updatedTodoFromAPI = await response.json();
-    todosList[index] = updatedTodoFromAPI;
-    renderToDos();
-  } catch (error) {
-    console.error("Fehler beim Speichern", error);
-    showError("Änderungen konnten nicht gespeichert werden.");
-  }
-
-  const currentText = todosList[index].title;
-  // const newTitle = prompt("Bearbeite den Titel", currentText);
-  if (newTitle === null) {
-    console.log("Kein Titel eingegeben");
-    return;
-  }
-  const trimmedTitle = newTitle.trim();
-  todosList[index].title = trimmedTitle;
-  todosList[index].completed = false;
-  renderToDos();
-}
-
-function openEditMode(index) {
-  console.log(`Öffne Editier-Modus für Eintrag ${index}`);
-  document.getElementById(`todoItem-${index}`).classList.add('editing');
-  document.getElementById(`editInput-${index}`).addEventListener(
-    "keydown", inputFieldKeypress);
-}
-
-function cancelEdit(index) {
-  console.log(`Beende Editier-Modus für Eintrag ${index}`);
-  document.getElementById(`todoItem-${index}`).classList.remove('editing');
-  const input = document.getElementById(`editInput-${index}`);
-  input.value = todosList[index].title;
-  input.removeEventListener("keydown", inputFieldKeypress);
-}
-
-function inputFieldKeypress(event) {
-  const index = parseInt((this.id.split("-"))[1]);
-  switch (event.key) {
-    case "Enter":
-      saveEdit(index);
-      break;
-    case "Escape":
-      cancelEdit(index);
-      break;
-    case "Undo":
-      this.value = todosList[index].title;
-      break;
-  }
-}
-
-
 // Wir wollen einen Event-Listener definieren
 // dieser wird getriggert, sobald der Löschen-Button im Modal gedrückt wird
 // Löschen-Button hat die ID: confirmDeleteButton
 // Sobald diese Aktion passiert, wird eine Funktion ausgeführt
 // Diese Funktion beinhaltet dann das Löschen des Todos aus der Liste
-document
-  .getElementById("confirmDeleteButton")
+document.getElementById("confirmDeleteButton")
   .addEventListener("click", async () => {
     if (deleteIndex !== null) {
       const todoToDelete = todosList[deleteIndex];
@@ -351,19 +233,90 @@ document
   }
 );
 
-document.getElementById("todoInput").addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {addTodo();}
-});
+// ! Editier-Modus
+async function saveEdit(index) {
+  const inputElement = document.getElementById(`editInput-${index}`);
+  const newTitle = inputElement.value.trim();
+  if (newTitle === "") {
+    console.log("Kein Titel eingegeben");
+    showError("Titel darf nicht leer sein");
+    return;
+  }
+  const todo = todosList[index];
+  try {
+    const response = await fetch(`${APIURL}/${todo.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: newTitle }),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status}`);
+    }
+    const { title } = await response.json();
+    todo.title = title;
+    document.getElementById(`todoText-${index}`).innerText = title;
+  } catch (error) {
+    console.error("Fehler beim Speichern", error);
+    showError("Änderungen konnten nicht gespeichert werden.");
+  } finally {
+    cancelEdit(index);
+  }
+}
 
-// function buttonClicked() {
-//     if (deleteIndex !== null) {
-//         todosList.splice(deleteIndex, 1);
-//         deleteIndex = null;
-//         renderToDos();
+function openEditMode(index) {
+  console.log(`Öffne Editier-Modus für Eintrag ${index}`);
+  document.getElementById(`todoItem-${index}`).classList.add("editing");
+  document
+    .getElementById(`editInput-${index}`)
+    .addEventListener("keydown", inputFieldKeypress);
+}
 
-//         const modalElement = document.getElementById('deleteModal');
-//         bootstrap.Modal.getInstance(modalElement).hide();
-//     }
-// }
+function cancelEdit(index) {
+  console.log(`Beende Editier-Modus für Eintrag ${index}`);
+  document.getElementById(`todoItem-${index}`).classList.remove("editing");
+  const input = document.getElementById(`editInput-${index}`);
+  input.value = todosList[index].title;
+  input.removeEventListener("keydown", inputFieldKeypress);
+}
 
-// document.getElementById('confirmDeleteButton').addEventListener('click', buttonClicked())
+function inputFieldKeypress(event) {
+  const index = parseInt(this.id.split("-")[1]);
+  switch (event.key) {
+    case "Enter":
+      saveEdit(index);
+      break;
+    case "Escape":
+      cancelEdit(index);
+      break;
+    case "Undo":
+      this.value = todosList[index].title;
+      break;
+  }
+}
+
+// ! Todo abhaken
+async function changeStatus(checkbox, index) {
+  // const changeStatus = async index => {
+  // Status switchen von completed im ToDos Objekt
+  const todo = todosList[index];
+  const newStatus = checkbox.checked === true;
+  if (todo.completed === newStatus) {
+    console.error("Checkbox stimmt nicht mit Todo überein.");
+  }
+  try {
+    // Fetch um Status des Todos zu aktualisieren
+    const response = await fetch(`${APIURL}/${todo.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completed: newStatus }),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status}`);
+    }
+    todo.completed = (await response.json()).completed;
+  } catch (error) {
+    console.error("Fehler beim Status ändern", error);
+  } finally {
+    checkbox.checked = todo.completed;
+  }
+}
