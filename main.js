@@ -1,5 +1,7 @@
 console.log("JavaScript Datei geladen")
 
+const API_BASE_URL = 'http://localhost:3000';
+
 // Veränderung, dass wir ein leeres Array initialiseren, das wir gleich mit einer Funktion füllen, wo wir die API nach Daten fragen
 let todosList = [];
 
@@ -58,12 +60,15 @@ async function loadTodosFromAPI() {
     showLoading();
     try {
         // fetche dir die Daten von der API
-        const response = await fetch('https://686e0a5fc9090c49538803f9.mockapi.io/api/todos');
+        const response = await fetch(`${API_BASE_URL}/todos`);
         // Transformiere das Response-Objekt in der Konstante response in ein json-Format
         const todosFromAPI = await response.json();
         // Schreibe diese todosFromAPI im json-Format in unsere Todos-Liste
         todosList = todosFromAPI;
         console.log("Todos geladen...", todosList);
+        if (!response.ok){
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
         // Wir haben jetzt unsere Todos von der API geholt
         // Jetzt wollen wir diese Todos in der Liste darstellen
     } catch (error) {
@@ -90,6 +95,10 @@ async function changeStatus(index) {
     // Status switchen von completed im ToDos Objekt
     // todosList[index].completed = !todosList[index].completed;
     const todo = todosList[index];
+    if (!todo){
+        showError("Todo existiert mit dieser ID nicht")
+        return;
+    }
     const newStatus = !todo.completed;
     todo.completed = newStatus;
     renderToDos();
@@ -101,7 +110,7 @@ async function changeStatus(index) {
         // Fetch um Status des Todos zu aktualisieren
         // const APIURL = `https://686e0a5fc9090c49538803f9.mockapi.io/api/todos/${todo.id}`
         // console.log("Das ist die URL", APIURL);
-        const response = await fetch(`https://686e0a5fc9090c49538803f9.mockapi.io/api/todos/${todo.id}`, {
+        const response = await fetch(`${API_BASE_URL}/todos/${todo.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', },
             body: JSON.stringify({
@@ -115,6 +124,9 @@ async function changeStatus(index) {
             throw new Error(`HTTP Error: ${response.status}`)
         }
         console.log("Status geändert");
+        // Hier aktualisieren wir unsere lokale Liste mit der finalen Version des Objektes
+        const updatedTodoFromAPI = await response.json();
+        todosList[index] = updatedTodoFromAPI;
         // renderToDos();
     } catch (error) {
         console.error("Fehler beim Status ändern", error);
@@ -182,7 +194,7 @@ async function addTodo() {
         console.log("Erstelle neues Todo über API...");
         // API-Call zum Hinzufügen des neuen Todos
         // über eine POST-Request
-        const response = await fetch('https://686e0a5fc9090c49538803f9.mockapi.io/api/todos', {
+        const response = await fetch(`${API_BASE_URL}/todos`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -205,6 +217,16 @@ async function addTodo() {
     } catch (error) {
         console.error("Fehler beim Laden", error);
         showError("Todo konnte nicht erstellt werden");
+        // retryFetch('https://686e0a5fc9090c49538803f9.mockapi.io/api/todos', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({
+        //         title: inputFieldValue,
+        //         completed: false
+        //     })
+        // })
     } finally {
         setButtonLoading(false);
     }
@@ -215,6 +237,22 @@ async function addTodo() {
     // // alert("To-Do erfolgreich hinzugefügt: " + inputFieldValue);
 }
 renderToDos();
+
+// async function retryFetch(url, options, retries=3){
+//     for(let i=0; i<retries; i++) {
+//         try {
+//             const response = await fetch(url, options);
+//             if (!response.ok){
+//                 throw new Error("Nicht erfolgreicher retry vom Fetch");
+//             }
+//             return response;
+//         } catch (error) {
+//             console.error(`Fehler beim Retry-Versuch ${i+1}`);
+            
+//         }
+
+//     }
+// }
 
 // Globale Variable für den deleteIndex
 let deleteIndex = null;
@@ -238,12 +276,19 @@ function deleteToDoModal(index) {
 async function saveEdit(index) {
     const inputElement = document.getElementById(`editInput-${index}`);
     const newTitle = inputElement.value.trim();
+    // Early Return für leeren Titel
     if (newTitle === "") {
         console.log("Kein Titel eingegeben")
         showError("Titel darf nicht leer sein")
         return;
-    }
+    } 
     const todo = todosList[index];
+    // Early Return für einen nicht veränderten Titel
+    if (newTitle === todo.title) {
+        console.log("Keine Änderung festgestellt");
+        showError("Keine Änderungen im Titel festgestellt");
+        return;
+    }
     const updatedTodo = {
         id: todo.id,
         title: newTitle,
@@ -252,7 +297,7 @@ async function saveEdit(index) {
     }
 
     try {
-        const response = await fetch(`https://686e0a5fc9090c49538803f9.mockapi.io/api/todos/${todo.id}`, {
+        const response = await fetch(`${API_BASE_URL}/todos/${todo.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -270,7 +315,7 @@ async function saveEdit(index) {
     } catch (error) {
         console.error("Fehler beim Speichern", error);
         showError("Änderungen konnten nicht gespeichert werden.");
-}
+    }
 
 
 
@@ -278,16 +323,16 @@ async function saveEdit(index) {
 
 
 
-const currentText = todosList[index].title;
-// const newTitle = prompt("Bearbeite den Titel", currentText);
-if (newTitle === null) {
-    console.log("Kein Titel eingegeben")
-    return;
-}
-const trimmedTitle = newTitle.trim();
-todosList[index].title = trimmedTitle;
-todosList[index].completed = false;
-renderToDos()
+    const currentText = todosList[index].title;
+    // const newTitle = prompt("Bearbeite den Titel", currentText);
+    if (newTitle === null) {
+        console.log("Kein Titel eingegeben")
+        return;
+    }
+    const trimmedTitle = newTitle.trim();
+    todosList[index].title = trimmedTitle;
+    todosList[index].completed = false;
+    renderToDos()
 }
 
 function openEditMode(index) {
@@ -312,7 +357,7 @@ document.getElementById('confirmDeleteButton').addEventListener('click', async (
         try {
             console.log("lösche Todo", todoToDelete);
             // Todo aus der Liste in der API löschen
-            const response = await fetch(`https://686e0a5fc9090c49538803f9.mockapi.io/api/todos/${todoToDelete.id}`, {
+            const response = await fetch(`${API_BASE_URL}/todos/${todoToDelete.id}`, {
                 method: 'DELETE'
             })
             if (!response.ok) {
